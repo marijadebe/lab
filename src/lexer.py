@@ -49,15 +49,27 @@ def lexer():
         for x in range(len(lines)):
             mezzoarr = lines[x].split(" ")
             tokens = []
-            for y in range(len(mezzoarr)):
+            y = 0
+            while y < len(mezzoarr):
                 if re.search("^[*+-\/=%<>]$|^==$",mezzoarr[y]):
                     tokens.append(Token(Types.OPERATOR, mezzoarr[y]))
                 if re.search("^[0-9]+$",mezzoarr[y]):
                     tokens.append(Token(Types.INTEGER, mezzoarr[y]))
                 if re.search("^[0-9]+\.[0-9]+$", mezzoarr[y]):
                     tokens.append(Token(Types.FLOAT, mezzoarr[y]))
-                if re.search('^".*"$',mezzoarr[y]):
-                    tokens.append(Token(Types.STRING, mezzoarr[y].strip('\n').strip('"')))
+                if re.search('^".*',mezzoarr[y]):
+                    while(True):
+                        str = ""
+                        if not re.search('^".*',mezzoarr[y]):
+                            str = " "
+                        tokens.append(Token(Types.STRING, str+mezzoarr[y].strip('\n').strip('"'))) 
+                        if (re.search('.*"$', mezzoarr[y])):
+                            break
+                        y+=1
+                    if(y+1 >= len(mezzoarr)):
+                        break
+                    else:
+                        y+=1
                 if re.search('^\/\/[^\/].*', mezzoarr[y]):
                     tokens.append(Token(Types.COMMENT, mezzoarr[y].strip('\n')))
                     while(y < len(mezzoarr)):
@@ -72,6 +84,9 @@ def lexer():
                     tokens.append(Token(Types.ARGUMENT, mezzoarr[y]))
                 elif re.search('^[^"123456789+\/*%-=<>].*', mezzoarr[y]):
                     tokens.append(Token(Types.IDENTIFIER, mezzoarr[y].strip('\n')))
+                y+=1
+            for x in range(len(tokens)):
+                print(tokens[x].getValue())
             tokenarr.append(tokens.copy())
     return tokenarr
 
@@ -94,15 +109,16 @@ def interpreter(astree):
     for x in range(len(astree)):
         if (astree[x].getToken().getType() == Types.FUNCTION):
             if(astree[x].getToken().getValue() == "out"):
+                print("")
                 for j in range(len(astree[x].children)):
                     if astree[x].getChild(j).getToken().getType() == Types.STRING:
-                        print(astree[x].getChild(j).getToken().getValue())
+                        sys.stdout.write(astree[x].getChild(j).getToken().getValue())
                     elif astree[x].getChild(j).getToken().getType() == Types.IDENTIFIER:
-                        print(variables[astree[x].getChild(j).getToken().getValue()])
+                        sys.stdout.write(variables[astree[x].getChild(j).getToken().getValue()])
                     elif astree[x].getChild(j).getToken().getType() == Types.ARGUMENT:
                         val = re.findall('[0-9]+',astree[x].getChild(j).getToken().getValue())
                         val = int(val[0])
-                        print(str(sys.argv[val+2]))
+                        sys.stdout.write(str(sys.argv[val+2]))
         if astree[x].getToken().getType() == Types.IDENTIFIER:
             dump = astree[x].children.copy() 
             evalstring = ""

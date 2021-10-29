@@ -53,8 +53,11 @@ def lexer():
             tokens = []
             y = 0
             while y < len(mezzoarr):
-                if re.search("^[*+-\/=%<>]$|^==$",mezzoarr[y]):
-                    tokens.append(Token(Types.OPERATOR, mezzoarr[y]))
+                if re.search("^[*+-\/=%<>]$|^==$|^&&$",mezzoarr[y]):
+                    if re.search("^&&$", mezzoarr[y]):
+                        tokens.append(Token(Types.OPERATOR, " and "))
+                    else:    
+                        tokens.append(Token(Types.OPERATOR, mezzoarr[y]))
                 if re.search("^[0-9]+$",mezzoarr[y]):
                     tokens.append(Token(Types.INTEGER, mezzoarr[y]))
                 if re.search("^[0-9]+\.[0-9]+$", mezzoarr[y]):
@@ -131,6 +134,7 @@ def interpreter(astree):
                     x = x + 1
         if (astree[x].getToken().getType() == Types.LOOPDELIMITER):
             if looping == 1:
+                x = x - 1
                 while (astree[x+1].getToken().getType() != Types.LOOP):
                     x = x - 1
         elif (astree[x].getToken().getType() == Types.FUNCTION):

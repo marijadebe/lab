@@ -1,0 +1,25 @@
+{
+    "name": "lab",
+    "displayName": "LAB",
+    "description": "LAB programming language",
+    "version": "0.0.1",
+    "engines": {
+        "vscode": "^1.61.0"
+    },
+    "categories": [
+        "Programming Languages"
+    ],
+    "contributes": {
+        "languages": [{
+            "id": "lab",
+            "aliases": ["LAB Programming language", "lab"],
+            "extensions": [".lab"],
+            "configuration": "./language-configuration.json"
+        }],
+        "grammars": [{
+            "language": "lab",
+            "scopeName": "source.lab",
+            "path": "./syntaxes/lab.tmLanguage.json"
+        }]
+    }
+}

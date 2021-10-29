@@ -1,0 +1,54 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "LAB Programming language",
+	"patterns": [
+		{
+			"include": "#comments"
+		},
+		{
+			"include": "#strings"
+		},
+		{
+			"include": "#constants"
+		},
+		{
+			"include": "#keywords"
+		}
+	],
+	"repository": {
+		"strings": {
+			"name": "string.quoted.double.lab",
+			"begin": "\"",
+			"end": "\"",
+			"patterns": [
+				{
+					"name": "constant.character.escape.lab",
+					"match": "\\\\."
+				}
+			]
+		},
+		"comments": {
+			"patterns": [{
+				"name": "comment.line.lab",
+				"match": "\/\/.*"
+			}]
+		},
+		"constants": {
+			"patterns": [{
+				"name":"constant.numeric.lab",
+				"match": "[+-]?([0-9]*[.])?[0-9]+"
+			}]
+		},
+		"keywords": {
+			"patterns": [{
+				"name":"keyword.control.lab",
+				"match": "^out"
+			},
+			{
+				"name":"keyword.other",
+				"match": "[+*%\/-]"
+			}]
+		}
+	},
+	"scopeName": "source.lab"
+}

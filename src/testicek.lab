@@ -1,9 +1,0 @@
-x = 5
-vysledek = 3
-while x < 101
-vysledek = x % 3 == 0 ? "Fizz" : x
-vysledek = x % 5 == 0 ? "Buzz" : vysledek
-vysledek = x % 3 == 0 && x % 5 == 0 ? "Fizz Buzz" : vysledek
-out vysledek
-x = x + 1
-elihw

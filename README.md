@@ -38,8 +38,8 @@ elihw
 out vysledek
 
 //FizzBuzz
-x = 5
-vysledek = 3
+x = 1
+vysledek = 0
 while x < 101
 vysledek = x % 3 == 0 ? "Fizz" : x
 vysledek = x % 5 == 0 ? "Buzz" : vysledek

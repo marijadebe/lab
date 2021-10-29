@@ -42,7 +42,7 @@
 		"keywords": {
 			"patterns": [{
 				"name":"keyword.control.lab",
-				"match": "^out"
+				"match": "^out|^while|^elihw"
 			},
 			{
 				"name":"keyword.other",

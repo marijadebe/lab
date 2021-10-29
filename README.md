@@ -27,6 +27,7 @@ height = arg[0]
 base = arg[1]
 area = base * height / 2.0
 out "Area:" area
+
 //Factorial
 x = arg[0]
 vysledek = 1

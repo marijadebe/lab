@@ -1,0 +1,7 @@
+x = arg[0]
+vysledek = 1
+while x > 1
+vysledek = x * vysledek
+x = x - 1
+elihw
+out vysledek

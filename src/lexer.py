@@ -13,6 +13,8 @@ class Types(Enum):
     ARGUMENT = 7
     FLOAT = 8
     SEPARATION = 9
+    LOOP = 10
+    LOOPDELIMITER = 11
 
 class Token():
     def __init__(self,type, value):
@@ -58,14 +60,16 @@ def lexer():
                 if re.search("^[0-9]+\.[0-9]+$", mezzoarr[y]):
                     tokens.append(Token(Types.FLOAT, mezzoarr[y]))
                 if re.search('^".*',mezzoarr[y]):
+                    retezec = ""
                     while(True):
                         str = ""
                         if not re.search('^".*',mezzoarr[y]):
                             str = " "
-                        tokens.append(Token(Types.STRING, str+mezzoarr[y].strip('\n').strip('"'))) 
+                        retezec += str+mezzoarr[y]
                         if (re.search('.*"$', mezzoarr[y])):
                             break
                         y+=1
+                    tokens.append(Token(Types.STRING, retezec.strip('\n').strip('"')))
                     if(y+1 >= len(mezzoarr)):
                         break
                     else:
@@ -78,15 +82,17 @@ def lexer():
                     break
                 if re.search('^\?$|^:$', mezzoarr[y]):
                     tokens.append(Token(Types.SEPARATION, mezzoarr[y]))
-                if (mezzoarr[y] == "out"):
+                if re.search("^while", mezzoarr[y]):
+                    tokens.append(Token(Types.LOOP, mezzoarr[y]))
+                elif re.search("^elihw", mezzoarr[y]):
+                    tokens.append(Token(Types.LOOPDELIMITER, mezzoarr[y]))
+                elif (mezzoarr[y] == "out"):
                     tokens.append(Token(Types.FUNCTION, mezzoarr[y]))
                 elif re.search('^arg\[[0-9].*\]$', mezzoarr[y]):
                     tokens.append(Token(Types.ARGUMENT, mezzoarr[y]))
                 elif re.search('^[^"123456789+\/*%-=<>].*', mezzoarr[y]):
                     tokens.append(Token(Types.IDENTIFIER, mezzoarr[y].strip('\n')))
                 y+=1
-            for x in range(len(tokens)):
-                print(tokens[x].getValue())
             tokenarr.append(tokens.copy())
     return tokenarr
 
@@ -94,20 +100,40 @@ def lexer():
 def ast(tokenarr):
     hiearchy = []
     for x in range(len(tokenarr)):
-        if((tokenarr[x][0].getType() == Types.IDENTIFIER and (1 < len(tokenarr[x])) and tokenarr[x][1].getValue() == "=") or tokenarr[x][0].getType() == Types.FUNCTION):
+        if((tokenarr[x][0].getType() == Types.IDENTIFIER and (1 < len(tokenarr[x])) and tokenarr[x][1].getValue() == "=") or tokenarr[x][0].getType() == Types.FUNCTION or tokenarr[x][0].getType() == Types.LOOP or tokenarr[x][0].getType() == Types.LOOPDELIMITER):
             hiearchy.append(Tree(tokenarr[x][0]))
             y = 1
-            while ((y < len(tokenarr[x])) and not(tokenarr[x][y].getType() == Types.IDENTIFIER and ((y+1 < len(tokenarr[x])) and tokenarr[x][y+1].getValue() == "=")) and tokenarr[x][y].getType() != Types.FUNCTION):
+            while ((y < len(tokenarr[x])) and not(tokenarr[x][y].getType() == Types.IDENTIFIER and ((y+1 < len(tokenarr[x])) and tokenarr[x][y+1].getValue() == "=")) and tokenarr[x][y].getType() != Types.FUNCTION and tokenarr[x][y].getType() != Types.LOOP and tokenarr[x][y].getType() != Types.LOOPDELIMITER):
                 if(tokenarr[x][y].getValue() != "=" and tokenarr[x][y].getType() != Types.COMMENT):
                     hiearchy[-1].addChild(tokenarr[x][y])
                 y+=1
+
     return hiearchy.copy()
 
 #Interpreter
 def interpreter(astree):
     variables = {}
-    for x in range(len(astree)):
-        if (astree[x].getToken().getType() == Types.FUNCTION):
+    looping = 0
+    x = 0
+    while x < len(astree):
+        if (astree[x].getToken().getType() == Types.LOOP):
+            interstring = ""
+            looping = 1
+            for i in range(len(astree[x].children)):
+                dite = astree[x].getChild(i).getToken() 
+                if(dite.getType() == Types.IDENTIFIER):
+                    interstring += variables[dite.getValue()]
+                else:
+                    interstring += dite.getValue()
+            if  (not eval(interstring)):
+                looping = 0
+                while(astree[x].getToken().getType() != Types.LOOPDELIMITER):
+                    x = x + 1
+        if (astree[x].getToken().getType() == Types.LOOPDELIMITER):
+            if looping == 1:
+                while (astree[x+1].getToken().getType() != Types.LOOP):
+                    x = x - 1
+        elif (astree[x].getToken().getType() == Types.FUNCTION):
             if(astree[x].getToken().getValue() == "out"):
                 print("")
                 for j in range(len(astree[x].children)):
@@ -119,7 +145,7 @@ def interpreter(astree):
                         val = re.findall('[0-9]+',astree[x].getChild(j).getToken().getValue())
                         val = int(val[0])
                         sys.stdout.write(str(sys.argv[val+2]))
-        if astree[x].getToken().getType() == Types.IDENTIFIER:
+        elif astree[x].getToken().getType() == Types.IDENTIFIER:
             dump = astree[x].children.copy() 
             evalstring = ""
             condition = ""
@@ -152,7 +178,7 @@ def interpreter(astree):
                 else:
                     output = eval(evalstring)
                 variables[astree[x].getToken().getValue()] = str(output)
-
+        x+=1
 def main():
     tokens = lexer()
     astree = ast(tokens)

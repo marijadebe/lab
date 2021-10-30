@@ -6,20 +6,8 @@ from models.token import Token
 from models.tree import Tree
 from models.types import Types
 from controllers.lexer import lexer
-
-#Abstract syntax tree
-def ast(tokenarr):
-    hiearchy = []
-    for x in range(len(tokenarr)):
-        if((tokenarr[x][0].getType() == Types.IDENTIFIER and (1 < len(tokenarr[x])) and tokenarr[x][1].getValue() == "=") or tokenarr[x][0].getType() == Types.FUNCTION or tokenarr[x][0].getType() == Types.LOOP or tokenarr[x][0].getType() == Types.LOOPDELIMITER):
-            hiearchy.append(Tree(tokenarr[x][0]))
-            y = 1
-            while ((y < len(tokenarr[x])) and not(tokenarr[x][y].getType() == Types.IDENTIFIER and ((y+1 < len(tokenarr[x])) and tokenarr[x][y+1].getValue() == "=")) and tokenarr[x][y].getType() != Types.FUNCTION and tokenarr[x][y].getType() != Types.LOOP and tokenarr[x][y].getType() != Types.LOOPDELIMITER):
-                if(tokenarr[x][y].getValue() != "=" and tokenarr[x][y].getType() != Types.COMMENT):
-                    hiearchy[-1].addChild(tokenarr[x][y])
-                y+=1
-
-    return hiearchy.copy()
+from controllers.ast import ast
+from controllers.out import out
 
 #Interpreter
 def interpreter(astree):
@@ -47,16 +35,7 @@ def interpreter(astree):
                     x = x - 1
         elif (astree[x].getToken().getType() == Types.FUNCTION):
             if(astree[x].getToken().getValue() == "out"):
-                print("")
-                for j in range(len(astree[x].children)):
-                    if astree[x].getChild(j).getToken().getType() == Types.STRING:
-                        sys.stdout.write(astree[x].getChild(j).getToken().getValue())
-                    elif astree[x].getChild(j).getToken().getType() == Types.IDENTIFIER:
-                        sys.stdout.write(variables[astree[x].getChild(j).getToken().getValue()])
-                    elif astree[x].getChild(j).getToken().getType() == Types.ARGUMENT:
-                        val = re.findall('[0-9]+',astree[x].getChild(j).getToken().getValue())
-                        val = int(val[0])
-                        sys.stdout.write(str(sys.argv[val+2]))
+                out(astree[x], variables)
         elif astree[x].getToken().getType() == Types.IDENTIFIER:
             dump = astree[x].children.copy() 
             evalstring = ""

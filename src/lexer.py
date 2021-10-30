@@ -2,102 +2,10 @@ from enum import Enum
 import sys
 import re
 
-#Classes
-class Types(Enum):
-    OPERATOR = 1
-    INTEGER = 2
-    STRING = 3
-    IDENTIFIER = 4
-    COMMENT = 5
-    FUNCTION = 6
-    ARGUMENT = 7
-    FLOAT = 8
-    SEPARATION = 9
-    LOOP = 10
-    LOOPDELIMITER = 11
-
-class Token():
-    def __init__(self,type, value):
-        self.__type = type
-        self.__value = value
-    def getType(self):
-        return self.__type
-    def getValue(self):
-        return self.__value
-    def setType(self,type):
-        self.__type=type
-    def setValue(self, value):
-        self.__value = value
-
-class Tree():
-    children = []
-    def __init__(self,token):
-        self.__token = token
-        self.children = []
-    def addChild(self,token):
-        self.children.append(Tree(token))
-    def getChild(self,index):
-        return self.children[index]
-    def getToken(self):
-        return self.__token
-    def setToken(self, token):
-        self.__token = token
-
-#Lexical analysis
-def lexer():
-    tokenarr = []
-    with open(sys.argv[1], encoding = 'utf-8') as f:
-        lines = f.readlines()
-        for x in range(len(lines)):
-            mezzoarr = lines[x].split(" ")
-            tokens = []
-            y = 0
-            while y < len(mezzoarr):
-                if re.search("^[*+-\/=%<>]$|^==$|^&&$",mezzoarr[y]):
-                    if re.search("^&&$", mezzoarr[y]):
-                        tokens.append(Token(Types.OPERATOR, " and "))
-                    else:    
-                        tokens.append(Token(Types.OPERATOR, mezzoarr[y]))
-                if re.search("^[0-9]+$",mezzoarr[y]):
-                    tokens.append(Token(Types.INTEGER, mezzoarr[y]))
-                if re.search("^[0-9]+\.[0-9]+$", mezzoarr[y]):
-                    tokens.append(Token(Types.FLOAT, mezzoarr[y]))
-                if re.search('^".*',mezzoarr[y]):
-                    retezec = ""
-                    while(True):
-                        str = ""
-                        if not re.search('^".*',mezzoarr[y]):
-                            str = " "
-                        retezec += str+mezzoarr[y]
-                        if (re.search('.*"$', mezzoarr[y])):
-                            break
-                        y+=1
-                    tokens.append(Token(Types.STRING, retezec.strip('\n').strip('"')))
-                    if(y+1 >= len(mezzoarr)):
-                        break
-                    else:
-                        y+=1
-                if re.search('^\/\/[^\/].*', mezzoarr[y]):
-                    tokens.append(Token(Types.COMMENT, mezzoarr[y].strip('\n')))
-                    while(y < len(mezzoarr)):
-                        tokens.append(Token(Types.COMMENT, mezzoarr[y].strip('\n')))
-                        y+=1
-                    break
-                if re.search('^\?$|^:$', mezzoarr[y]):
-                    tokens.append(Token(Types.SEPARATION, mezzoarr[y]))
-                if re.search("^while", mezzoarr[y]):
-                    tokens.append(Token(Types.LOOP, mezzoarr[y]))
-                elif re.search("^elihw", mezzoarr[y]):
-                    tokens.append(Token(Types.LOOPDELIMITER, mezzoarr[y]))
-                elif (mezzoarr[y] == "out"):
-                    tokens.append(Token(Types.FUNCTION, mezzoarr[y]))
-                elif re.search('^arg\[[0-9].*\]$', mezzoarr[y]):
-                    tokens.append(Token(Types.ARGUMENT, mezzoarr[y]))
-                elif re.search('^[^"123456789+\/*%-=<>].*', mezzoarr[y]):
-                    tokens.append(Token(Types.IDENTIFIER, mezzoarr[y].strip('\n')))
-                y+=1
-            tokenarr.append(tokens.copy())
-    return tokenarr
+from models.token import Token
+from models.tree import Tree
+from models.types import Types
+from controllers.lexer import lexer
 
 #Abstract syntax tree
 def ast(tokenarr):
@@ -184,7 +92,7 @@ def interpreter(astree):
                 variables[astree[x].getToken().getValue()] = str(output)
         x+=1
 def main():
-    tokens = lexer()
+    tokens = lexer(sys.argv[1])
     astree = ast(tokens)
     interpreter(astree)
 

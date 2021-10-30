@@ -14,7 +14,7 @@ def lexer(file):
             Returns:
                     tokenarr (array): A 2-D array of Token objects
     '''
-    
+
     tokenarr = []
     with open(file, encoding = 'utf-8') as f:
         lines = f.readlines()
@@ -55,7 +55,7 @@ def lexer(file):
                     break
                 if re.search('^\?$|^:$', mezzoarr[y]):
                     tokens.append(Token(Types.SEPARATION, mezzoarr[y]))
-                if re.search("^while", mezzoarr[y]):
+                elif re.search("^while", mezzoarr[y]):
                     tokens.append(Token(Types.LOOP, mezzoarr[y]))
                 elif re.search("^elihw", mezzoarr[y]):
                     tokens.append(Token(Types.LOOPDELIMITER, mezzoarr[y]))

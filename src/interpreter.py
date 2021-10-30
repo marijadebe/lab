@@ -61,20 +61,32 @@ def interpreter(astree):
             dump = astree[x].children.copy() 
             evalstring = ""
             condition = ""
-            for z in range(len(dump)):
+            z = 0
+            while z < len(dump):
                 if dump[z].getToken().getType() == Types.SEPARATION:
-                    if(dump[z].getToken().getValue() == "?"):
+                    if(dump[z].getToken().getValue() == "?" and dump[z].getToken().getType() == Types.SEPARATION):
+                        evalstring2 = ""
                         condition = eval(evalstring)
                         if (condition):
-                            if dump[z+2].getToken().getType() == Types.IDENTIFIER:
-                                variables[astree[x].getToken().getValue()] = str(variables[dump[z+2].getToken().getValue()])
-                            else:
-                                variables[astree[x].getToken().getValue()] = str(dump[z+2].getToken().getValue())
+                            z+=1
+                            while not(dump[z].getToken().getType() == Types.SEPARATION and dump[z].getToken().getValue() == ":"):
+                                if dump[z].getToken().getType() == Types.IDENTIFIER:
+                                    evalstring2 += str(variables[dump[z].getToken().getValue()])
+                                else:
+                                    evalstring2 += str(dump[z].getToken().getValue())
+                                z+=1
+                            variables[astree[x].getToken().getValue()] = str(eval(evalstring2))
                         else:
-                            if dump[z+4].getToken().getType() == Types.IDENTIFIER:
-                                variables[astree[x].getToken().getValue()] = str(variables[dump[z+4].getToken().getValue()])
-                            else:
-                                variables[astree[x].getToken().getValue()] = str(dump[z+4].getToken().getValue())
+                            z+=1
+                            while not(dump[z-1].getToken().getType() == Types.SEPARATION and dump[z-1].getToken().getValue() == ":"):
+                                z+=1
+                            while z < len(dump):
+                                if dump[z].getToken().getType() == Types.IDENTIFIER:
+                                    evalstring2 += str(variables[dump[z].getToken().getValue()])
+                                else:
+                                    evalstring2 += str(dump[z].getToken().getValue())
+                                z+=1
+                            variables[astree[x].getToken().getValue()] = str(eval(evalstring2))
                         break
                 if(dump[z].getToken().getType() == Types.IDENTIFIER):
                     evalstring += variables[dump[z].getToken().getValue()]
@@ -84,6 +96,7 @@ def interpreter(astree):
                     evalstring += str(sys.argv[val+2])
                 else:
                     evalstring += str(dump[z].getToken().getValue())
+                z += 1
             if (condition == ""):
                 if re.search("[a-z]", evalstring):
                     output = eval('"'+evalstring+'"')

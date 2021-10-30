@@ -2,7 +2,7 @@ bits 64
 default rel
 
 segment .data
-    msg db "Hello World! %ld", 0
+    msg db "Hello World! %d", 0
     dat dq 12
 
 segment .text

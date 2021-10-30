@@ -1,1 +1,2 @@
-out "ahoj svete"
+x = 5
+out "hello friend" x

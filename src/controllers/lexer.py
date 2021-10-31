@@ -23,6 +23,7 @@ def lexer(file):
             tokens = []
             y = 0
             while y < len(mezzoarr):
+                mezzoarr[y].strip("\n")
                 if re.search("^[*+-\/=%<>]$|^==$|^&&$",mezzoarr[y]):
                     if re.search("^&&$", mezzoarr[y]):
                         tokens.append(Token(Types.OPERATOR, " and "))

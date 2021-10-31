@@ -1,2 +1,4 @@
 x = 5
-out "hello friend" x
+y = x * 5
+zetko = "hello"
+out y zetko
